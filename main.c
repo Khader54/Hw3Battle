@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #define ROWS 8
 #define COLS 8
@@ -126,18 +127,20 @@ int getBoardNumber()
     int board_number = -1;
     if(scanf("%d", &board_number) != 1)
     {
-        return  -1;
+        exit(1);
     }
     while(board_number > 5 || board_number < 1)
     {
         print_wrong_board_number();
         if(scanf("%d", &board_number) != 1)
         {
-            return  -1;
+            exit(1);
         }
     }
     return board_number;
 }
+
+
 //Building the board, asking for position just the first time
 void fillMatrix(char gameBoard[ROWS][COLS])
 {
@@ -173,14 +176,74 @@ bool checkPosition(int intPos, char charPos, char gameBoard[ROWS][COLS])
 }
 
 
-//check if game is over
-bool IsGameOver()
+//maybe the wrong is here :) <3
+// this function counts the ships in the board
+int shipCnt(int gameNum)
 {
+    char copy[ROWS][COLS];
+    for (int i = 0; i < ROWS; i++)
+    {
+        for (int j = 0; j < COLS; j++)
+        {
+            copy[i][j]= Boards[gameNum][i][j];
+        }
+    }
+    int cnt = 0;
+    for (int i = 0; i < ROWS; i++)
+    {
+        for (int j = 0; j < COLS; j++)
+        {
+            if(copy[i][j] != 'S')
+            {
+                continue;
+            }
+            copy[i][j] = ' ';
+            cnt++;
+
+            int tempRow = i, tempCol = j;
+
+            //down
+            while(++tempRow < ROWS && copy[tempRow][j] == 'S')
+            {
+                copy[tempRow][j] = ' ';
+            }
+            tempRow = i;
+            //up
+            while(--tempRow > 0 && copy[tempRow][j] == 'S')
+            {
+                copy[tempRow][j] = ' ';
+            }
+            //right
+            while(++tempCol < COLS && copy[i][tempCol] == 'S')
+            {
+                copy[i][tempCol] = ' ';
+            }
+            tempCol = j;
+            //left
+            while(--tempCol > 0 && copy[i][tempCol] == 'S')
+            {
+                copy[i][tempCol] = ' ';
+            }
+        }
+    }
+    return cnt;
+}
+
+
+//check if game is over
+bool IsGameOver(int numOfShips)
+{
+
+
+
+
 
 }
 
-// if u have smth wrong, check this, i think it is the problem
-void checkIfShip(int row,char col, gameBoard[ROWS][COLS], int gNum)
+// if u have smth wrong, check this, I think it is the problem
+// u call it when u want to know if cnt++ for the ship count, so u can know if
+// the game ended(cntfromhere = numOfallships)
+bool checkIfShip(int row,char col, gameBoard[ROWS][COLS], int gNum)
 {
     if(Boards[gNum][row][col] == 'S')
     {
@@ -191,11 +254,11 @@ void checkIfShip(int row,char col, gameBoard[ROWS][COLS], int gNum)
                 gameBoard[right][col] = 'S';
             }
         }
-        for(int up = col + 1; up < ROWS; up++)
+        for(int up = col + 1; up < COLS; up++)
         {
-            if(Boards[gNum][row][col] == 'S')
+            if(Boards[gNum][row][up] == 'S')
             {
-                gameBoard[row][col] = 'S';
+                gameBoard[row][up] = 'S';
             }
         }
         for(int left = row - 1; left >= 0; left--)
@@ -205,51 +268,55 @@ void checkIfShip(int row,char col, gameBoard[ROWS][COLS], int gNum)
                 gameBoard[left][col] = 'S';
             }
         }
-        for(int right = row + 1; right < ROWS; right++)
+        for(int down = col - 1; down <= COLS; down++)
         {
-            if(Boards[gNum][right][col] == 'S')
+            if(Boards[gNum][row][down] == 'S')
             {
-                gameBoard[right][col] = 'S';
+                gameBoard[row][down] = 'S';
             }
         }
-        for(int right = row + 1; right < ROWS; right++)
-        {
-            if(Boards[gNum][right][col] == 'S')
-            {
-                gameBoard[right][col] = 'S';
-            }
-        }
-
-
-
+        return true;
     }
-
-
-
-
+    return false;
 }
 
 
+int readInt()
+{
+    int x;
+    if(scanf("%d", &x) != 1)
+    {
+        exit(1);
+    }
+    return x;
+}
+char readChar()
+{
+    char c;
+    if(scanf(" %c", &c) != 1)
+    {
+        exit(1);
+    }
+    return c;
+}
 
 
 void runGame(char gameBoard[ROWS][COLS])
 {
 
-        int board_number = getBoardNumber();
-        if(board_number == -1)
-        {
-            return;
-        }
+    int board_number = getBoardNumber();
+    int numOfShips = shipCnt(board_number);
 
 
-    int targetRow;
+
+    int targetRow, cntHit = 0;
     char targetCol;
 
-    while (IsGameOver() == true)
+    while (IsGameOver(numOfShips) == true)
     {
 
-        scanf("%d", &targetRow);
-        scanf(" %c", &targetCol);
+        targetRow = readInt();
+        targetCol = readChar();
         if(checkPosition(targetRow, targetCol, gameBoard) != true)
         {
             continue;
@@ -257,7 +324,10 @@ void runGame(char gameBoard[ROWS][COLS])
 
         gameBoard[targetRow][targetCol - 'A'] =
             Boards[board_number - 1][targetRow][targetCol - 'A'];
-
+        if(checkIfShip(targetRow, targetCol, gameBoard,board_number) == 1)
+        {
+            cntHit++;
+        }
 
 
 

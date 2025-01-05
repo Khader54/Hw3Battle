@@ -20,18 +20,21 @@ void printMatrix(char matrix[ROWS][COLS]);
 
 
 // Optional Boards
-
-const char MATRIX_1[ROWS][COLS] = {
+const char Boards[5][ROWS][COLS] = {
+//const char MATRIX_1[ROWS][COLS] = {
+ {
         {'~', '~', '~', '~', '~', '~', '~', '~'},
-        {'~', '~', 'S', '~', '~', '~', 'S', '~'},
-        {'~', '~', 'S', '~', '~', '~', 'S', '~'},
-        {'~', '~', 'S', '~', '~', '~', 'S', '~'},
-        {'~', '~', '~', '~', '~', '~', '~', '~'},
-        {'S', '~', '~', 'S', '~', '~', '~', '~'},
-        {'S', '~', '~', 'S', '~', '~', '~', '~'},
-        {'S', '~', '~', 'S', '~', '~', '~', '~'}
-};
-const char MATRIX_2[ROWS][COLS] = {
+       {'~', '~', 'S', '~', '~', '~', 'S', '~'},
+       {'~', '~', 'S', '~', '~', '~', 'S', '~'},
+       {'~', '~', 'S', '~', '~', '~', 'S', '~'},
+       {'~', '~', '~', '~', '~', '~', '~', '~'},
+       {'S', '~', '~', 'S', '~', '~', '~', '~'},
+       {'S', '~', '~', 'S', '~', '~', '~', '~'},
+       {'S', '~', '~', 'S', '~', '~', '~', '~'}
+    },
+//};
+//const char MATRIX_2[ROWS][COLS] = {
+    {
         {'S', '~', '~', '~', '~', '~', '~', '~'},
         {'S', '~', 'S', '~', '~', '~', '~', '~'},
         {'S', '~', 'S', '~', '~', '~', '~', '~'},
@@ -40,8 +43,10 @@ const char MATRIX_2[ROWS][COLS] = {
         {'~', '~', '~', '~', '~', '~', '~', 'S'},
         {'~', 'S', 'S', '~', '~', '~', '~', '~'},
         {'~', '~', '~', '~', '~', '~', '~', '~'}
-};
-const char MATRIX_3[ROWS][COLS] = {
+    },
+//};
+//const char MATRIX_3[ROWS][COLS] = {
+    {
         {'~', 'S', 'S', 'S', '~', '~', '~', '~'},
         {'~', '~', '~', '~', '~', 'S', 'S', 'S'},
         {'~', '~', '~', '~', '~', '~', '~', '~'},
@@ -50,8 +55,10 @@ const char MATRIX_3[ROWS][COLS] = {
         {'~', '~', 'S', 'S', 'S', 'S', '~', '~'},
         {'~', '~', '~', '~', '~', '~', '~', '~'},
         {'S', '~', '~', '~', '~', '~', '~', '~'}
-};
-const char MATRIX_4[ROWS][COLS] = {
+        },
+//};
+//const char MATRIX_4[ROWS][COLS] = {
+    {
         {'~', '~', '~', '~', '~', '~', '~', '~'},
         {'~', '~', '~', '~', '~', '~', '~', '~'},
         {'~', '~', '~', '~', '~', '~', '~', '~'},
@@ -60,8 +67,10 @@ const char MATRIX_4[ROWS][COLS] = {
         {'~', '~', '~', '~', '~', '~', '~', '~'},
         {'~', '~', '~', '~', '~', '~', '~', '~'},
         {'~', '~', '~', '~', '~', '~', '~', '~'}
-};
-const char MATRIX_5[ROWS][COLS] = {
+        },
+//};
+//const char MATRIX_5[ROWS][COLS] = {
+    {
         {'S', '~', 'S', '~', '~', '~', '~', 'S'},
         {'~', '~', '~', '~', '~', 'S', '~', '~'},
         {'~', '~', 'S', '~', '~', '~', '~', '~'},
@@ -70,10 +79,11 @@ const char MATRIX_5[ROWS][COLS] = {
         {'~', 'S', '~', '~', '~', '~', 'S', '~'},
         {'~', '~', '~', '~', '~', '~', '~', '~'},
         {'S', '~', '~', 'S', '~', '~', '~', 'S'}
+        }
+//};
 };
-
-const char Boards[5][ROWS][COLS] =
-        {MATRIX_1, MATRIX_2, MATRIX_3, MATRIX_4, MATRIX_5};
+//char Boards[5][ROWS][COLS] =
+        //{MATRIX_1, MATRIX_2, MATRIX_3, MATRIX_4, MATRIX_5};
 
 void print_welcome_message(){
     printf("Welcome to Battleship! Please enter board number:\n");
@@ -234,8 +244,7 @@ int shipCnt(int gameNum)
 bool IsGameOver(int numOfShips)
 {
 
-
-
+    return true;
 
 
 }
@@ -243,41 +252,56 @@ bool IsGameOver(int numOfShips)
 // if u have smth wrong, check this, I think it is the problem
 // u call it when u want to know if cnt++ for the ship count, so u can know if
 // the game ended(cntfromhere = numOfallships)
-bool checkIfShip(int row,char col, gameBoard[ROWS][COLS], int gNum)
+bool IsShipVer(int row,int col, char gameBoard[ROWS][COLS], int gNum)
 {
-    if(Boards[gNum][row][col] == 'S')
+    if((row + 1 < ROWS && Boards[gNum][row + 1][col] == 'S') ||
+    (row - 1 >= 0 && Boards[gNum][row - 1][col] == 'S'))
+        {
+            return true;
+        }
+    return false;
+}
+
+bool checkIfShip(int row,int col, char gameBoard[ROWS][COLS], int gNum)
+{
+    if(Boards[gNum][row][col] != 'S')
     {
-        for(int right = row + 1; right < ROWS; right++)
+        return false;
+    }
+    if(IsShipVer(row ,col, gameBoard, gNum) == true)
+    {
+        for(int up = row + 1; up < ROWS; up++)
         {
-            if(Boards[gNum][right][col] == 'S')
+            if(Boards[gNum][up][col] == 'S')
             {
-                gameBoard[right][col] = 'S';
+                gameBoard[up][col] = 'S';
             }
         }
-        for(int up = col + 1; up < COLS; up++)
+        for(int down = row - 1; down >= 0; down--)
         {
-            if(Boards[gNum][row][up] == 'S')
+            if(Boards[gNum][down][col] == 'S')
             {
-                gameBoard[row][up] = 'S';
-            }
-        }
-        for(int left = row - 1; left >= 0; left--)
-        {
-            if(Boards[gNum][left][col] == 'S')
-            {
-                gameBoard[left][col] = 'S';
-            }
-        }
-        for(int down = col - 1; down <= COLS; down++)
-        {
-            if(Boards[gNum][row][down] == 'S')
-            {
-                gameBoard[row][down] = 'S';
+                gameBoard[down][col] = 'S';
             }
         }
         return true;
     }
-    return false;
+
+    for(int right = col + 1; right < COLS; right++)
+    {
+        if(Boards[gNum][row][right] == 'S')
+        {
+            gameBoard[row][right] = 'S';
+        }
+    }
+    for(int left = col - 1; left >= 0; left--)
+    {
+        if(Boards[gNum][row][left] == 'S')
+        {
+            gameBoard[row][left] = 'S';
+        }
+    }
+    return true;
 }
 
 
@@ -328,10 +352,10 @@ void runGame(char gameBoard[ROWS][COLS])
         {
             cntHit++;
         }
+        checkIfShip(targetRow,targetCol - 'A',gameBoard,board_number);
 
 
-
-
+        printMatrix(gameBoard);
         print_enter_position();
     }
 }

@@ -18,22 +18,18 @@ void print_error_position_already_bombed();
 void print_winning_message(int n_submarines, int n_moves);
 void printMatrix(char matrix[ROWS][COLS]);
 
-
 // Optional Boards
-const char Boards[5][ROWS][COLS] = {
-//const char MATRIX_1[ROWS][COLS] = {
- {
+const char gameBoards[5][ROWS][COLS] = {
+    {
         {'~', '~', '~', '~', '~', '~', '~', '~'},
-       {'~', '~', 'S', '~', '~', '~', 'S', '~'},
-       {'~', '~', 'S', '~', '~', '~', 'S', '~'},
-       {'~', '~', 'S', '~', '~', '~', 'S', '~'},
-       {'~', '~', '~', '~', '~', '~', '~', '~'},
-       {'S', '~', '~', 'S', '~', '~', '~', '~'},
-       {'S', '~', '~', 'S', '~', '~', '~', '~'},
-       {'S', '~', '~', 'S', '~', '~', '~', '~'}
+        {'~', '~', 'S', '~', '~', '~', 'S', '~'},
+        {'~', '~', 'S', '~', '~', '~', 'S', '~'},
+        {'~', '~', 'S', '~', '~', '~', 'S', '~'},
+        {'~', '~', '~', '~', '~', '~', '~', '~'},
+        {'S', '~', '~', 'S', '~', '~', '~', '~'},
+        {'S', '~', '~', 'S', '~', '~', '~', '~'},
+        {'S', '~', '~', 'S', '~', '~', '~', '~'}
     },
-//};
-//const char MATRIX_2[ROWS][COLS] = {
     {
         {'S', '~', '~', '~', '~', '~', '~', '~'},
         {'S', '~', 'S', '~', '~', '~', '~', '~'},
@@ -44,8 +40,6 @@ const char Boards[5][ROWS][COLS] = {
         {'~', 'S', 'S', '~', '~', '~', '~', '~'},
         {'~', '~', '~', '~', '~', '~', '~', '~'}
     },
-//};
-//const char MATRIX_3[ROWS][COLS] = {
     {
         {'~', 'S', 'S', 'S', '~', '~', '~', '~'},
         {'~', '~', '~', '~', '~', 'S', 'S', 'S'},
@@ -55,9 +49,7 @@ const char Boards[5][ROWS][COLS] = {
         {'~', '~', 'S', 'S', 'S', 'S', '~', '~'},
         {'~', '~', '~', '~', '~', '~', '~', '~'},
         {'S', '~', '~', '~', '~', '~', '~', '~'}
-        },
-//};
-//const char MATRIX_4[ROWS][COLS] = {
+    },
     {
         {'~', '~', '~', '~', '~', '~', '~', '~'},
         {'~', '~', '~', '~', '~', '~', '~', '~'},
@@ -67,9 +59,7 @@ const char Boards[5][ROWS][COLS] = {
         {'~', '~', '~', '~', '~', '~', '~', '~'},
         {'~', '~', '~', '~', '~', '~', '~', '~'},
         {'~', '~', '~', '~', '~', '~', '~', '~'}
-        },
-//};
-//const char MATRIX_5[ROWS][COLS] = {
+    },
     {
         {'S', '~', 'S', '~', '~', '~', '~', 'S'},
         {'~', '~', '~', '~', '~', 'S', '~', '~'},
@@ -79,11 +69,8 @@ const char Boards[5][ROWS][COLS] = {
         {'~', 'S', '~', '~', '~', '~', 'S', '~'},
         {'~', '~', '~', '~', '~', '~', '~', '~'},
         {'S', '~', '~', 'S', '~', '~', '~', 'S'}
-        }
-//};
+    }
 };
-//char Boards[5][ROWS][COLS] =
-        //{MATRIX_1, MATRIX_2, MATRIX_3, MATRIX_4, MATRIX_5};
 
 void print_welcome_message(){
     printf("Welcome to Battleship! Please enter board number:\n");
@@ -131,18 +118,19 @@ void printMatrix(char matrix[ROWS][COLS]) {
 
 // Add your functions here
 
-//Taking the board number, and making sure it is 1-5
+// Taking the board number, and making sure it is 1-5
 int getBoardNumber()
 {
     int board_number = -1;
-    if(scanf("%d", &board_number) != 1)
+    if (scanf("%d", &board_number) != 1)
     {
         exit(1);
     }
-    while(board_number > 5 || board_number < 1)
+
+    while (board_number > 5 || board_number < 0)
     {
         print_wrong_board_number();
-        if(scanf("%d", &board_number) != 1)
+        if (scanf("%d", &board_number) != 1)
         {
             exit(1);
         }
@@ -150,13 +138,12 @@ int getBoardNumber()
     return board_number;
 }
 
-
-//Building the board, asking for position just the first time
+// Building the board, asking for position just the first time
 void fillMatrix(char gameBoard[ROWS][COLS])
 {
-    for(int i = 0; i < ROWS; i++)
+    for (int i = 0; i < ROWS; i++)
     {
-        for(int j = 0; j < COLS; j++)
+        for (int j = 0; j < COLS; j++)
         {
             gameBoard[i][j] = ' ';
         }
@@ -165,17 +152,18 @@ void fillMatrix(char gameBoard[ROWS][COLS])
     print_enter_position();
 }
 
-
 // Check pos, Checks pos, so it is valid.
-bool checkPosition(int intPos, char charPos, char gameBoard[ROWS][COLS])
+bool checkPosition(const int intPos, const char charPos, const char gameBoard[ROWS][COLS])
 {
-    if(intPos < 0 || intPos > 7 || charPos > 'H' || charPos < 'A')
+    if (intPos < 0 || intPos > 7 ||
+        charPos > 'H' || charPos < 'A')
     {
         print_error_row_or_col();
         print_enter_position();
         return false;
     }
-    if(gameBoard[intPos][charPos - 'A'] != ' ')
+
+    if (gameBoard[intPos][charPos - 'A'] != ' ')
     {
         print_error_position_already_bombed();
         print_enter_position();
@@ -185,8 +173,7 @@ bool checkPosition(int intPos, char charPos, char gameBoard[ROWS][COLS])
     return true;
 }
 
-
-//maybe the wrong is here :) <3
+// maybe the wrong is here :) <3
 // this function counts the ships in the board
 int shipCnt(int gameNum)
 {
@@ -195,7 +182,7 @@ int shipCnt(int gameNum)
     {
         for (int j = 0; j < COLS; j++)
         {
-            copy[i][j]= Boards[gameNum][i][j];
+            copy[i][j]= gameBoards[gameNum][i][j];
         }
     }
     int cnt = 0;
@@ -243,43 +230,41 @@ int shipCnt(int gameNum)
 //check if game is over
 bool IsGameOver(int numOfShips)
 {
-
     return true;
-
-
 }
 
 // if u have smth wrong, check this, I think it is the problem
 // u call it when u want to know if cnt++ for the ship count, so u can know if
 // the game ended(cntfromhere = numOfallships)
-bool IsShipVer(int row,int col, char gameBoard[ROWS][COLS], int gNum)
+bool shipIsVer(const int row, const int col, const char gameBoard[ROWS][COLS], const int gNum)
 {
-    if((row + 1 < ROWS && Boards[gNum][row + 1][col] == 'S') ||
-    (row - 1 >= 0 && Boards[gNum][row - 1][col] == 'S'))
-        {
-            return true;
-        }
+    if ((row + 1 < ROWS && gameBoards[gNum][row + 1][col] == 'S')
+        || (row - 1 >= 0 && gameBoards[gNum][row - 1][col] == 'S')
+    ) {
+        return true;
+    }
     return false;
 }
 
-bool checkIfShip(int row,int col, char gameBoard[ROWS][COLS], int gNum)
+bool checkIfShip(const int row, const int col, char gameBoard[ROWS][COLS], const int gNum)
 {
-    if(Boards[gNum][row][col] != 'S')
+    if (gameBoards[gNum][row][col] != 'S')
     {
         return false;
     }
-    if(IsShipVer(row ,col, gameBoard, gNum) == true)
+
+    if (shipIsVer(row, col, gameBoard, gNum) == true)
     {
         for(int up = row + 1; up < ROWS; up++)
         {
-            if(Boards[gNum][up][col] == 'S')
+            if(gameBoards[gNum][up][col] == 'S')
             {
                 gameBoard[up][col] = 'S';
             }
         }
         for(int down = row - 1; down >= 0; down--)
         {
-            if(Boards[gNum][down][col] == 'S')
+            if(gameBoards[gNum][down][col] == 'S')
             {
                 gameBoard[down][col] = 'S';
             }
@@ -289,21 +274,20 @@ bool checkIfShip(int row,int col, char gameBoard[ROWS][COLS], int gNum)
 
     for(int right = col + 1; right < COLS; right++)
     {
-        if(Boards[gNum][row][right] == 'S')
+        if(gameBoards[gNum][row][right] == 'S')
         {
             gameBoard[row][right] = 'S';
         }
     }
     for(int left = col - 1; left >= 0; left--)
     {
-        if(Boards[gNum][row][left] == 'S')
+        if(gameBoards[gNum][row][left] == 'S')
         {
             gameBoard[row][left] = 'S';
         }
     }
     return true;
 }
-
 
 int readInt()
 {
@@ -314,46 +298,39 @@ int readInt()
     }
     return x;
 }
+
 char readChar()
 {
     char c;
-    if(scanf(" %c", &c) != 1)
+    if (scanf(" %c", &c) != 1)
     {
         exit(1);
     }
     return c;
 }
 
-
 void runGame(char gameBoard[ROWS][COLS])
 {
-
     int board_number = getBoardNumber();
     int numOfShips = shipCnt(board_number);
-
-
-
-    int targetRow, cntHit = 0;
-    char targetCol;
+    int cntHit = 0;
 
     while (IsGameOver(numOfShips) == true)
     {
-
-        targetRow = readInt();
-        targetCol = readChar();
-        if(checkPosition(targetRow, targetCol, gameBoard) != true)
+        int targetRow = readInt();
+        char targetCol = readChar();
+        if (checkPosition(targetRow, targetCol, gameBoard) != true)
         {
             continue;
         }
 
         gameBoard[targetRow][targetCol - 'A'] =
-            Boards[board_number - 1][targetRow][targetCol - 'A'];
-        if(checkIfShip(targetRow, targetCol, gameBoard,board_number) == 1)
+            gameBoards[board_number][targetRow][targetCol - 'A'];
+        if (checkIfShip(targetRow, targetCol, gameBoard,board_number) == 1)
         {
             cntHit++;
         }
         checkIfShip(targetRow,targetCol - 'A',gameBoard,board_number);
-
 
         printMatrix(gameBoard);
         print_enter_position();
@@ -362,20 +339,9 @@ void runGame(char gameBoard[ROWS][COLS])
 
 int main(void)
 {
-
-
-
     print_welcome_message();
     char gameBoard[ROWS][COLS];
     fillMatrix(gameBoard);
     runGame(gameBoard);
-
-
-
-
-
-
-
-
     return 0;
 }

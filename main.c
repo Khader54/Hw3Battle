@@ -61,6 +61,7 @@ const char Boards[5][ROWS][COLS] = {
         {'~', '~', '~', '~', '~', '~', '~', '~'}
     },
     {
+        //  A    B    C    D    E    F    G    H
         {'S', '~', 'S', '~', '~', '~', '~', 'S'},
         {'~', '~', '~', '~', '~', 'S', '~', '~'},
         {'~', '~', 'S', '~', '~', '~', '~', '~'},
@@ -168,8 +169,7 @@ void fillMatrix(char gameBoard[ROWS][COLS])
 }
 
 // Check pos, Checks pos, so it is valid.
-bool checkPosition(const int intPos, const char charPos,
-    const char gameBoard[ROWS][COLS])
+bool checkPosition(int intPos, char charPos,char gameBoard[ROWS][COLS])
 {
     if (intPos < 0 || intPos > 7 ||
         charPos > 'H' || charPos < 'A')
@@ -188,11 +188,10 @@ bool checkPosition(const int intPos, const char charPos,
     return true;
 }
 
-// maybe the wrong is here :) <3
-// this function counts the ships in the board
-int shipCnt(int gameNum)
+
+// this functions counts the ships in the board
+void copyBoard(int gameNum, char copy[ROWS][COLS])
 {
-    char copy[ROWS][COLS];
     for (int i = 0; i < ROWS; i++)
     {
         for (int j = 0; j < COLS; j++)
@@ -200,6 +199,38 @@ int shipCnt(int gameNum)
             copy[i][j]= Boards[gameNum][i][j];
         }
     }
+}
+void removeShip(int i, int j, char board[ROWS][COLS])
+{
+    board[i][j] = ' ';
+    int tempRow = i, tempCol = j;
+    //down
+    while(++tempRow < ROWS && board[tempRow][j] == 'S')
+    {
+        board[tempRow][j] = ' ';
+    }
+    tempRow = i;
+    //up
+    while(--tempRow > 0 && board[tempRow][j] == 'S')
+    {
+        board[tempRow][j] = ' ';
+    }
+    //right
+    while(++tempCol < COLS && board[i][tempCol] == 'S')
+    {
+        board[i][tempCol] = ' ';
+    }
+    tempCol = j;
+    //left
+    while(--tempCol > 0 && board[i][tempCol] == 'S')
+    {
+        board[i][tempCol] = ' ';
+    }
+}
+int shipCnt(int gameNum)
+{
+    char copy[ROWS][COLS];
+    copyBoard(gameNum, copy);
     int cnt = 0;
     for (int i = 0; i < ROWS; i++)
     {
@@ -209,99 +240,89 @@ int shipCnt(int gameNum)
             {
                 continue;
             }
-            copy[i][j] = ' ';
             cnt++;
-
-            int tempRow = i, tempCol = j;
-
-            //down
-            while(++tempRow < ROWS && copy[tempRow][j] == 'S')
-            {
-                copy[tempRow][j] = ' ';
-            }
-            tempRow = i;
-            //up
-            while(--tempRow > 0 && copy[tempRow][j] == 'S')
-            {
-                copy[tempRow][j] = ' ';
-            }
-            //right
-            while(++tempCol < COLS && copy[i][tempCol] == 'S')
-            {
-                copy[i][tempCol] = ' ';
-            }
-            tempCol = j;
-            //left
-            while(--tempCol > 0 && copy[i][tempCol] == 'S')
-            {
-                copy[i][tempCol] = ' ';
-            }
+            removeShip(i,j,copy);
         }
     }
     return cnt;
 }
 
 
-//check if game is over, it needs to print things.
-bool IsGameOver(int numOfShips, int numOfHit, int numOfMoves)
+//check if game is over.
+bool IsGameOver(int numOfShips, int numOfHit, int numOfMoves,
+    int boardNum, char gameBoard[ROWS][COLS])
 {
     if(numOfHit == numOfShips)
     {
+        for(int i = 0; i < ROWS; i++)
+        {
+            for(int j = 0; j < ROWS; j++)
+            {
+                gameBoard[i][j] = Boards[boardNum][i][j];
+            }
+
+        }
+        printMatrix(gameBoard);
         print_winning_message(numOfShips,numOfMoves);
         return false;
     }
     return true;
 }
 
-// if u have smth wrong, check this, I think it is the problem
+
+
+
 // u call it when u want to know if cnt++ for the ship count, so u can know if
 // the game ended(cntfromhere = numOfallships)
-bool shipIsVer(const int row, const int col, const char gameBoard[ROWS][COLS],
-    const int gNum)
+bool shipIsVer(int row, int col, char gameBoard[ROWS][COLS],
+    int gNum)
 {
     if ((row + 1 < ROWS && Boards[gNum][row + 1][col] == 'S')
-        || (row - 1 >= 0 && Boards[gNum][row - 1][col] == 'S')
-    ) {
+        || (row - 1 >= 0 && Boards[gNum][row - 1][col] == 'S'))
+    {
         return true;
     }
     return false;
 }
 
 //Check if the target is a ship, and reveals all the S's on the board
-//the row and col were Const, ask why?
-bool checkIfShip(int row, char col, char gameBoard[ROWS][COLS],
-    const int gNum)
+void revealVer(int row, int col,int gNum, char gameBoard[ROWS][COLS])
 {
-    col = col - 'A';
-    if (Boards[gNum][row][col] != 'S')
+    for(int up = row + 1; up < ROWS; up++)
     {
-        return false;
-    }
+        if(Boards[gNum][up][col] == 'S')
+        {
+            gameBoard[up][col] = 'S';
+        }
+        else
+        {
+            break;
+        }
 
-    if (shipIsVer(row, col, gameBoard, gNum) == true)
+    }
+    for(int down = row - 1; down >= 0; down--)
     {
-        for(int up = row + 1; up < ROWS; up++)
+        if(Boards[gNum][down][col] == 'S')
         {
-            if(Boards[gNum][up][col] == 'S')
-            {
-                gameBoard[up][col] = 'S';
-            }
+            gameBoard[down][col] = 'S';
         }
-        for(int down = row - 1; down >= 0; down--)
+        else
         {
-            if(Boards[gNum][down][col] == 'S')
-            {
-                gameBoard[down][col] = 'S';
-            }
+            break;
         }
-        return true;
     }
-
+}
+void revealHor(int row, int col,int gNum, char gameBoard[ROWS][COLS])
+{
     for(int right = col + 1; right < COLS; right++)
     {
         if(Boards[gNum][row][right] == 'S')
         {
             gameBoard[row][right] = 'S';
+        }
+        else
+        {
+            break;
         }
     }
     for(int left = col - 1; left >= 0; left--)
@@ -310,42 +331,59 @@ bool checkIfShip(int row, char col, char gameBoard[ROWS][COLS],
         {
             gameBoard[row][left] = 'S';
         }
+        else
+        {
+            break;
+        }
     }
+}
+bool checkIfShip(int row, char charCol, char gameBoard[ROWS][COLS], int gNum)
+{
+    int col = charCol - 'A';
+    if (Boards[gNum][row][col] != 'S')
+    {
+        return false;
+    }
+    //revealVer
+    if (shipIsVer(row, col, gameBoard, gNum) == true)
+    {
+        revealVer(row, col, gNum, gameBoard);
+        return true;
+    }
+    //revealHor
+    revealHor(row, col, gNum, gameBoard);
     return true;
 }
 
 
 
-void runGame(char gameBoard[ROWS][COLS])
+void runGame(char gameBoard[ROWS][COLS], int boardNumber, int cntHit,
+    int numOfMoves, int numOfShips)
 {
-    int board_number = getBoardNumber() - 1;
-    fillMatrix(gameBoard);
-    int numOfShips = shipCnt(board_number);
-    int cntHit = 0, numOfMoves = 0;
-    int targetRow;
-    char targetCol;
-
-    while (IsGameOver(numOfShips, cntHit, numOfMoves) == true)
+    while (true)
     {
-         targetRow = readInt();
-         targetCol = readChar();
+        int targetRow = readInt();
+        char targetCol = readChar();
 
-        if (checkPosition(targetRow, targetCol, gameBoard) != true)
+        if (checkPosition(targetRow, targetCol, gameBoard) == true)
         {
-            continue;
+            numOfMoves++;
+
+            gameBoard[targetRow][targetCol - 'A'] =
+                Boards[boardNumber][targetRow][targetCol - 'A'];
+
+            if(checkIfShip(targetRow, targetCol, gameBoard,boardNumber) == 1)
+            {
+                cntHit++;
+            }
+            if(IsGameOver(numOfShips, cntHit, numOfMoves, boardNumber,
+                gameBoard) == false)
+            {
+                break;
+            }
+            printMatrix(gameBoard);
+            print_enter_position();
         }
-        numOfMoves++;
-
-        gameBoard[targetRow][targetCol - 'A'] =
-            Boards[board_number][targetRow][targetCol - 'A'];
-
-        if(checkIfShip(targetRow, targetCol, gameBoard,board_number) == 1)
-        {
-            cntHit++;
-        }
-
-        printMatrix(gameBoard);
-        print_enter_position();
     }
 }
 
@@ -354,7 +392,12 @@ int main(void)
     print_welcome_message();
     char gameBoard[ROWS][COLS];
 
-    runGame(gameBoard);
+
+
+    int boardNumber = getBoardNumber() - 1;
+    fillMatrix(gameBoard);
+    int cntHit = 0, numOfMoves = 0, numOfShips = shipCnt(boardNumber);
+    runGame(gameBoard ,boardNumber ,cntHit ,numOfMoves ,numOfShips);
 
 
     return 0;
